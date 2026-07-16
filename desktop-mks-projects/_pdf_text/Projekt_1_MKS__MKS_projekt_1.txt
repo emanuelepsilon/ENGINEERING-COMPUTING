@@ -1,0 +1,883 @@
+
+
+===== PAGE 1 =====
+Uppsala University
+Modelling Complex Systems
+1MA256
+Project 1; Two Competing
+Species: Coupled Logistic Maps
+Group 0
+April 29, 2026
+Author:
+OskarBengtsson Creaser
+JuliaHells ´en
+EmanuelMelki
+MohammadNakhjavani
+JosephSiouri
+RikardSindi Lindgren
+
+===== PAGE 2 =====
+Contents
+1 Problem statement 1
+2 Model and parameters 1
+2.1 Problem 1; Fixed points . . . . . . . . . . . . . . . . . . . . . 1
+2.2 Problem 2; Periodic Orbits of Period 2 & 3 . . . . . . . . . . . 1
+2.3 Problem 3; Phase Portraits . . . . . . . . . . . . . . . . . . . . 2
+2.4 Problem 4; Bifurcation Cascade . . . . . . . . . . . . . . . . . 2
+3 Numerical method 2
+3.1 Problem 1; Fixed points . . . . . . . . . . . . . . . . . . . . . 2
+3.1.1 The trivial fixed point . . . . . . . . . . . . . . . . . . 3
+3.1.2 A useful reformulation . . . . . . . . . . . . . . . . . . 3
+3.1.3 The diagonal casex ∗ =y ∗ . . . . . . . . . . . . . . . . 4
+3.1.4 Can asymmetric fixed points exist whenr 1 ̸=r 2? . . . 6
+3.1.5 Caseε= 0 . . . . . . . . . . . . . . . . . . . . . . . . . 6
+3.1.6 General Existence . . . . . . . . . . . . . . . . . . . . . 7
+3.2 Problem 2; Periodic Orbits of Period 2 & 3 . . . . . . . . . . . 8
+3.3 Problem 3; Phase Portraits . . . . . . . . . . . . . . . . . . . . 13
+3.4 Problem 4; Bifurcation Cascade . . . . . . . . . . . . . . . . . 15
+4 Results 17
+4.1 Problem 1; Fixed points . . . . . . . . . . . . . . . . . . . . . 17
+4.2 Problem 2; Periodic Orbits of Period 2 & 3 . . . . . . . . . . . 19
+4.3 Problem 3; Phase Portraits . . . . . . . . . . . . . . . . . . . . 20
+4.4 Problem 4; Bifurcation Cascade . . . . . . . . . . . . . . . . . 22
+5 Use of LLMs in this project 23
+6 Discussion 24
+7 Files submitted 24
+2
+
+===== PAGE 3 =====
+1 Problem statement
+We want to analyze a simplified model of two competing populations with
+a coupled logistic system. We want to analyze this models fixed point, its
+periodic orbits, dynamics and long-term behaviour.
+2 Model and parameters
+2.1 Problem 1; Fixed points
+We model two populations, with normalized densities
+xn andy n
+We are given the model for the very next generation, it is a combination of
+the two logistic updates:
+xn+1 = (1−ε)r 1xn(1−x n) +εr 2yn(1−y n),(1)
+yn+1 = (1−ε)r 2yn(1−y n) +εr 1xn(1−x n).(2)
+2.2 Problem 2; Periodic Orbits of Period 2 & 3
+In this part, we studied periodic orbits of period 2 and period 3 for the
+coupled logistic map. A pointz= (x, y) belongs to a period-porbit if
+F p(z) =z,
+withp= 2 orp= 3, and if it does not already have a smaller period.
+To compute such points numerically, we defined
+Gp(z) =F p(z)−z,
+and solved
+Gp(z) = (0,0).
+This gives a nonlinear system of two equations in the two unknownsxand
+y.
+1
+
+===== PAGE 4 =====
+2.3 Problem 3; Phase Portraits
+In this part of the lab, the goal was to study the long-time behaviour of the
+coupled logistic system by plotting its orbit in the phase plane (x n, yn). The
+map is
+xn+1 = (1−ε)r 1xn(1−x n) +εr 2yn(1−y n),(3)
+yn+1 = (1−ε)r 2yn(1−y n) +εr 1xn(1−x n).(4)
+The Python scriptphasePortrait.pyfollows exactly this idea: it iterates
+the map many times, discards a transient, keeps the later orbit points, and
+then plots the long-time values in the (x n, yn) plane. In the current imple-
+mentation, the parameter sets are
+(2.8,2.9,0.1),(3.1,3.4,0.3),(3.85,3.95,0.2),
+the initial point is (x0, y0) = (0.21,0.37), the transient is 1000 iterations, and
+the number of stored points is 4000. The figures are saved in a folder called
+figures. All of these values are set directly in the program header.
+2.4 Problem 4; Bifurcation Cascade
+In this part, we studied how the long-time behaviour of the coupled logistic
+map changes when the parameterr 2 is varied. Following the assignment, we
+fixed
+r1 = 3.1, ε= 0.3,
+and letr 2 vary in the interval
+2.8≤r 2 ≤3.97.
+The scriptbifurcationCascade.pyimplements this directly. In the
+present code, the number of sampled values ofr 2 is 800, the transient is 1000
+iterations, the number of kept iterates is 250, the initial point is (x 0, y0) =
+(0.21,0.37), and the figure is saved in the folderfigures. These settings are
+explicitly defined at the top of the file. :contentReference[oaicite:8]index=8
+3 Numerical method
+3.1 Problem 1; Fixed points
+In this section we determine the fixed points of the coupled logistic systems
+(1) and (2). A fixed point is a point (x ∗, y∗) such that one iteration of the
+2
+
+===== PAGE 5 =====
+map leaves the point unchanged. Therefore, (x ∗, y∗) must satisfy
+x∗ = (1−ε)r 1x∗(1−x ∗) +εr 2y∗(1−y ∗),(5)
+y∗ = (1−ε)r 2y∗(1−y ∗) +εr 1x∗(1−x ∗).(6)
+Our goal is to study these equations step by step.
+3.1.1 The trivial fixed point
+The simplest possible candidate is
+x∗ = 0, y ∗ = 0.
+Substituting into (5) and (6) gives
+0 = (1−ε)r 1 ·0·(1−0) +εr 2 ·0·(1−0) = 0,
+and similarly for the second equation. Hence
+(0,0)
+is always a fixed point.
+This is called the trivial fixed point, since both populations are zero.
+3.1.2 A useful reformulation
+To simplify the algebra, let us introduce
+A=r 1x∗(1−x ∗), B=r 2y∗(1−y ∗).
+Then the fixed point equations become
+x∗ = (1−ε)A+εB,(7)
+y∗ =εA+ (1−ε)B.(8)
+Now we add and subtract these two equations.
+Sum of the equations.Adding (7) and (8) gives
+x∗ +y ∗ =A+B.
+Substituting back the definitions ofAandB, we obtain
+x∗ +y ∗ =r 1x∗(1−x ∗) +r 2y∗(1−y ∗).(9)
+3
+
+===== PAGE 6 =====
+Difference of the equations.Subtracting (8) from (7) gives
+x∗ −y ∗ = (1−ε)A+εB−εA−(1−ε)B.
+Collecting terms,
+x∗ −y ∗ = (1−2ε)(A−B).
+Substituting back,
+x∗ −y ∗ = (1−2ε)
+
+r1x∗(1−x ∗)−r 2y∗(1−y ∗)
+
+.(10)
+These two relations are useful when discussing diagonal and asymmetric
+fixed points.
+3.1.3 The diagonal casex ∗ =y ∗
+We now study the case where both populations have the same fixed-point
+value. Let
+x∗ =y ∗ =s.
+Substituting this into (5) gives
+s= (1−ε)r 1s(1−s) +εr 2s(1−s),
+so
+s=
+
+(1−ε)r 1 +εr 2
+
+s(1−s).(11)
+Similarly, substitutingx ∗ =y ∗ =sinto (6) gives
+s= (1−ε)r 2s(1−s) +εr 1s(1−s),
+so
+s=
+
+(1−ε)r 2 +εr 1
+
+s(1−s).(12)
+We now discuss separately the two cases required in the assignment.
+Case 1:r 1 =r 2 =r
+If the two growth parameters are equal, then (11) and (12) are identical, and
+both reduce to
+s=rs(1−s).
+This gives
+s= 0
+4
+
+===== PAGE 7 =====
+or, fors̸= 0,
+1 =r(1−s).
+Hence
+s= 1− 1
+r .
+Therefore, whenr 1 =r 2 =r, the diagonal fixed points are
+(0,0) and
+
+1− 1
+r ,1− 1
+r
+
+.
+Case 2:r 1 ̸=r 2
+Ifr 1 ̸=r 2, then (11) and (12) must still both hold. Subtracting them gives
+0 =
+h
+(1−ε)r 1 +εr 2 −(1−ε)r 2 −εr 1
+i
+s(1−s).
+Simplifying the bracket,
+0 = (1−2ε)(r 1 −r 2)s(1−s).
+Since we are assumingr 1 ̸=r 2, this implies
+(1−2ε)s(1−s) = 0.
+So there are three possibilities:
+1.s= 0, which gives the trivial fixed point (0,0);
+2.s= 1, which does not satisfy the original equations, because then the
+right-hand side becomes 0 while the left-hand side is 1;
+3.ε= 1
+2.
+Therefore, ifr 1 ̸=r 2 andε̸= 1
+2, the only diagonal fixed point is
+(0,0) .
+5
+
+===== PAGE 8 =====
+Special caseε= 1
+2.Ifε= 1
+2, then the two fixed-point equations become
+x∗ = 1
+2 r1x∗(1−x ∗) + 1
+2 r2y∗(1−y ∗),
+y∗ = 1
+2 r2y∗(1−y ∗) + 1
+2 r1x∗(1−x ∗). (13)
+The right-hand sides are identical, so necessarilyx ∗ =y ∗ =s. Then we get
+s= r1 +r 2
+2 s(1−s).
+Thus
+s= 0 or 1 = r1 +r 2
+2 (1−s),
+which gives
+s= 1− 2
+r1 +r 2
+.
+Hence, in the special caseε= 1
+2 andr 1 ̸=r 2, there is an additional
+diagonal fixed point
+
+1− 2
+r1 +r 2
+,1− 2
+r1 +r 2
+
+.
+3.1.4 Can asymmetric fixed points exist whenr 1 ̸=r 2?
+3.1.5 Caseε= 0
+We now consider the possibility that
+x∗ ̸=y ∗.
+Such fixed points are called asymmetric fixed points. The easiest way to see
+that they may exist is to look first at the uncoupled caseε= 0. Then the
+system becomes
+x∗ =r 1x∗(1−x ∗), y ∗ =r 2y∗(1−y ∗).
+Each equation is just the fixed-point equation for the standard logistic map,
+so the possible values are
+x∗ = 0 orx ∗ = 1− 1
+r1
+,
+6
+
+===== PAGE 9 =====
+y∗ = 0 ory ∗ = 1− 1
+r2
+.
+Therefore the uncoupled system has the four fixed points
+(0,0),
+
+1− 1
+r1
+,0
+
+,
+
+0,1− 1
+r2
+
+,
+
+1− 1
+r1
+,1− 1
+r2
+
+.
+Ifr 1 ̸=r 2, then generally
+1− 1
+r1
+̸= 1− 1
+r2
+,
+so the point 
+1− 1
+r1
+,1− 1
+r2
+
+is asymmetric. This shows that asymmetric fixed points may indeed exist
+whenr 1 ̸=r 2.
+3.1.6 General Existence
+Another way to prove existence of asymmetric steady point, without explic-
+itly deriving solutions, is to apply the implicit function theorem. Assume
+r1 =r 2 and consider the function
+F(x, y;r 1 =r, r 2 =r) =
+(1−ε)rx(1−x) +εy(1−y)−x
+(1−ε)ry(1−y) +εx(1−x)−y
+
+.
+We know, from calculations above, steady points exist atx=y= 1− 1
+r and
+therefore that
+F(1− 1
+r ,1− 1
+r ) = (0,0).
+The determinant of the function’s Jacobian at this point is
+det(JF )|x=y=1− 1
+r
+= (1−2ε)(2−r) 2 −2(1−ε)(2−r) + 1,
+which is non-zero whenr̸= 1 andr̸= 1−4ε
+1−2ε. When the determinant is non-
+zero, the Implicit Function Theorem says there exists aδ 1, such that the
+equation
+F(x, y;r, r+δ) = 0, 1
+1The same statement could also be made about the equationF(x, y;r+δ, r) = 0.
+7
+
+===== PAGE 10 =====
+has solutions for allδ < δ 1 and asF 1 ̸=F 2 in this case, one can assume this
+steady point is non-symmetric.
+As a note on the result, thatr̸= 1 andr̸= 1−4ε
+1−2ε show up as exclusions,
+is no surprise. Whenr= 1, one can see from calculations above that the
+symmetric fixed points degenerate and only the trivial solutions remain. For
+the case whenr= 1−4ε
+1−2ε, it is not that the system degenerates but that
+problematicεvalues exist. The obvious example of this, which can be seen
+in the fraction itself, isε= 1
+2 .In this case, one can no longer make the
+statementF 1 ̸=F 2, as can be seen in equation 13 and thus the argument
+breaks down.
+3.2 Problem 2; Periodic Orbits of Period 2 & 3
+Main numerical idea.The first step in the code is to implement one
+iteration of the coupled map. After that, the same map is iterated repeatedly
+in order to computeF p(z). In this way, the code stays simple and avoids
+writing separate functions for period 2 and period 3.
+Listing 1: Core functions used in the periodic-orbit computation.
+1def F(z, r1, r2, eps):
+2x, y = z
+3
+4x_next = (1 - eps) * r1 * x * (1 - x) + eps * r2 * y * (1 - y)
+5y_next = (1 - eps) * r2 * y * (1 - y) + eps * r1 * x * (1 - x)
+6
+7return np.array([x_next, y_next], dtype=float)
+8
+9def Fp(z, p, r1, r2, eps):
+10z = np.array(z, dtype=float)
+11for _ in range(p):
+12z = F(z, r1, r2, eps)
+13return z
+14
+15def G(z, p, r1, r2, eps):
+16return Fp(z, p, r1, r2, eps) - np.array(z, dtype=float)
+The functionFcomputes one step of the model,Fpcomputes thep-fold
+iterateF p(z), andGmeasures how far the point is from returning to itself
+afterpiterations. A root ofGis therefore a candidate periodic point.
+8
+
+===== PAGE 11 =====
+Use of a numerical root solver.To solve the nonlinear system
+Gp(z) = 0, G p(z) =F p(z)−z,
+we use the functionrootfromscipy.optimize. Herez= (x, y). Thus, the
+equation means that we are looking for a point which returns to itself after
+piterations,
+F p(z) =z.
+Forp= 2 this gives candidates for period-2 orbits, and forp= 3 it gives
+candidates for period-3 orbits.
+Since nonlinear root-finding can depend on the starting value, several
+initial guesses are used. These initial guesses are chosen from a uniform grid
+in the square
+[0,1] 2,
+which is the natural domain of the model, sincexandyrepresent normalized
+population densities.
+In the code, the parameterngives the number of grid points in each
+coordinate direction. Therefore, the total number of initial guesses is
+n2.
+For example,n= 9 gives 9 2 = 81 starting points. We also tested larger values
+ofn, which means using a finer grid. However, increasingnbeyond 9 did not
+produce any new distinct solutions for the parameter values considered. The
+same roots were found again, only with more repeated convergence to already
+detected solutions. Therefore,n= 9 was chosen as a suitable compromise
+between reliability and computational cost.
+Listing 2: Initial guesses and root finding.
+1GLOBAL_TOL = 1e-10
+2
+3def make_initial_guesses(n=9):
+4grid = np.linspace(0.01, 0.99, n)
+5guesses = []
+6
+7for x0 in grid:
+8for y0 in grid:
+9point = np.array([x0, y0], dtype=float)
+10guesses.append(point)
+11
+12return guesses
+13
+14
+9
+
+===== PAGE 12 =====
+15guesses = make_initial_guesses(n=9)
+16
+17for guess in guesses:
+18sol = root(
+19lambda z: G(z, p, r1, r2, eps),
+20guess
+21)
+22
+23z = np.array(sol.x, dtype=float)
+24residual = np.linalg.norm(G(z, p, r1, r2, eps))
+25
+26if sol.success and residual < GLOBAL_TOL:
+27roots.append(z)
+The role ofrootis therefore to search numerically for a pointzsuch that
+Gp(z) becomes very close to zero. In other words, it tries to find a point
+satisfying
+F p(z) =z.
+Using many initial guesses increases the chance of finding different solutions,
+because different starting points may converge to different roots.
+Tolerance and validation of solutions.In the updated code, a global
+tolerance
+GLOBAL TOL= 10 −10
+is introduced and used consistently in several checks. After the root solver
+returns a candidate point, the program verifies that the residual is sufficiently
+small and that the point lies inside the physically relevant region [0,1] 2.
+Listing 3: Residual and domain checks.
+1def find_periodic_orbits(p, r1, r2, eps, guesses, tol_root=
+GLOBAL_TOL):
+2orbits = []
+3converging_guesses = []
+4
+5for guess in guesses:
+6sol = root(lambda z: G(z, p, r1, r2, eps), guess)
+7z = np.array(sol.x, dtype=float)
+8
+9if np.linalg.norm(G(z, p, r1, r2, eps), ord=np.inf) >
+tol_root:
+10continue
+11
+10
+
+===== PAGE 13 =====
+12if np.any(z < 0) or np.any(z > 1):
+13continue
+This means that only numerically accurate roots inside the biological
+interval are kept. Sincexandyrepresent normalized population densities,
+values outside [0,1] are discarded.
+Checking the minimal period.A root ofG p is not automatically a
+genuine period-ppoint, because fixed points and lower-period points also
+satisfyF p(z) =z. Therefore, the code explicitly checks the minimal period:
+Listing 4: Minimal-period test in the updated code.
+1def has_minimal_period(z, p, r1, r2, eps, tol=GLOBAL_TOL):
+2if np.linalg.norm(G(z, p, r1, r2, eps), ord=np.inf) > tol:
+3return False
+4
+5for k in range(1, p):
+6if np.linalg.norm(G(z, k, r1, r2, eps), ord=np.inf) < tol:
+7return False
+8
+9return True
+This test first verifies that the point really satisfiesF p(z) =zwithin the
+chosen tolerance. It then checks that the point does not already return after
+fewer thanpsteps. In this way, fixed points are excluded from the search
+for period-2 points, and both fixed points and period-2 points are excluded
+from the search for period-3 points.
+Grouping points into distinct orbits.A periodic orbit contains several
+points, and the root solver may converge to different points belonging to the
+same orbit. For this reason, the code builds the full orbit from a seed point
+and compares it with previously found orbits.
+Listing 5: Orbit construction and duplicate removal.
+1def build_orbit(z, p, r1, r2, eps):
+2orbit = []
+3current = np.array(z, dtype=float)
+4
+5for _ in range(p):
+11
+
+===== PAGE 14 =====
+6orbit.append(current.copy())
+7current = F(current, r1, r2, eps)
+8
+9return orbit
+10
+11def same_orbit(orbit1, orbit2, tol=GLOBAL_TOL):
+12for a in orbit1:
+13for b in orbit2:
+14if np.linalg.norm(a - b, ord=np.inf) < tol:
+15return True
+16return False
+This prevents the same orbit from being reported several times.
+Direct iteration as a comparison.Besides root finding, the program
+also performs a direct iteration from one ordinary initial point. The purpose
+of this step is not to replace the root solver, but to provide a qualitative
+check of the long-time behaviour.
+Listing 6: Direct iteration comparison.
+1def long_time_orbit(z0, r1, r2, eps, transient=500, keep=12):
+2z = np.array(z0, dtype=float)
+3
+4for _ in range(transient):
+5z = F(z, r1, r2, eps)
+6
+7points = []
+8for _ in range(keep):
+9z = F(z, r1, r2, eps)
+10points.append(z.copy())
+11
+12return points
+13
+14def observed_period(points, max_period=6, tol=GLOBAL_TOL):
+15m = len(points)
+16
+17for p in range(1, max_period + 1):
+18ok = True
+19for i in range(m - p):
+12
+
+===== PAGE 15 =====
+20if np.linalg.norm(points[i] - points[i + p], ord=np.inf
+) > tol:
+21ok = False
+22break
+23if ok:
+24return p
+25
+26return None
+In this comparison, the first 500 iterates are discarded, and then the next
+12 iterates are inspected. If the later points repeat with a small period, this
+gives a simple consistency check against the periodic orbits found by the root
+solver.
+How the program is run.The program is executed from the terminal
+with
+1python periodicPoints.py
+When the script is run, it tests the parameter values
+(r1, r2, ε) = (3.1,3.4,0.3),(3.1,3.55,0.3),(3.1,3.8,0.3),
+which are the values suggested in the assignment. It then prints the distinct
+period-2 and period-3 orbits it finds, the initial guesses that converged to
+each orbit, and the outcome of the direct-iteration comparison.
+3.3 Problem 3; Phase Portraits
+Main structure of the code.The first important part is the definition
+of one iteration of the map:
+Listing 7: One iteration of the coupled logistic map.
+1def F(x, y, r1, r2, eps):
+2x_next = (1 - eps) * r1 * x * (1 - x) + eps * r2 * y * (1 - y)
+3y_next = (1 - eps) * r2 * y * (1 - y) + eps * r1 * x * (1 - x)
+4return np.array([x_next, y_next], dtype=float)
+This function is the numerical version of the mathematical model. Every
+later part of the script is built from this one step.
+The second important part is the function that computes the orbit:
+13
+
+===== PAGE 16 =====
+Listing 8: Computing the orbit by repeated iteration.
+1def iterate_map(x0, y0, r1, r2, eps, n_steps):
+2orbit = np.zeros((n_steps + 1, 2), dtype=float)
+3orbit[0] = [x0, y0]
+4
+5x, y = x0, y0
+6for n in range(n_steps):
+7x, y = F(x, y, r1, r2, eps)
+8orbit[n + 1] = [x, y]
+9
+10return orbit
+The idea is simple. Starting from (x0, y0), the script repeatedly applies the
+map and stores the successive points. In this way, the full orbit is available
+as a numerical array.
+Discarding the transient and plotting the long-time orbit.To focus
+on the asymptotic behaviour, the program discards the first part of the orbit
+and plots only the later points:
+Listing 9: Discarding the transient and forming the phase portrait.
+1def make_phase_portrait(r1, r2, eps, x0, y0, transient_steps,
+keep_steps, output_folder):
+2total_steps = transient_steps + keep_steps
+3orbit = iterate_map(x0, y0, r1, r2, eps, total_steps)
+4
+5long_time_orbit = orbit[transient_steps + 1:]
+6x_values = long_time_orbit[:, 0]
+7y_values = long_time_orbit[:, 1]
+8
+9plt.figure(figsize=(7, 6))
+10plt.plot(x_values, y_values, ".", markersize=5)
+This is the most important numerical idea in the phase-portrait task.
+The transient is removed because the first iterations mainly describe how
+the system approaches its long-time behaviour. What we want to visualize
+is the behaviour after that initial adjustment.
+How the code is run.The script can be run from the terminal using
+14
+
+===== PAGE 17 =====
+1python phasePortrait.py
+When the script runs, it loops over the three parameter sets and saves one
+figure for each of them. This is done in themainfunction:
+Listing 10: Main loop over the parameter sets.
+1def main():
+2for r1, r2, eps in PARAMETER_SETS:
+3make_phase_portrait(
+4r1, r2, eps, x0, y0, transient_steps, keep_steps,
+output_folder
+5)
+6
+7if __name__ == "__main__":
+8main()
+The terminal output prints the path of each saved figure, while the figures
+themselves are written to thefiguresfolder.
+3.4 Problem 4; Bifurcation Cascade
+Basic structure of the code.As in the previous tasks, the code starts
+from one iteration of the coupled logistic map:
+Listing 11: One iteration of the coupled logistic map in the bifurcation code.
+1def F(x, y, r1, r2, eps):
+2x_next = (1 - eps) * r1 * x * (1 - x) + eps * r2 * y * (1 - y)
+3y_next = (1 - eps) * r2 * y * (1 - y) + eps * r1 * x * (1 - x)
+4return np.array([x_next, y_next], dtype=float)
+The main numerical task is then to keep only the long-time values ofx n
+for each fixed value ofr 2:
+Listing 12: Keeping the tail of the orbit for one parameter value.
+1def orbit_tail_for_parameter(r1, r2, eps, x0, y0, transient_steps,
+keep_steps):
+2x, y = x0, y0
+3
+4for _ in range(transient_steps):
+5x, y = F(x, y, r1, r2, eps)
+15
+
+===== PAGE 18 =====
+6
+7x_tail = np.zeros(keep_steps)
+8for k in range(keep_steps):
+9x, y = F(x, y, r1, r2, eps)
+10x_tail[k] = x
+11
+12return x_tail
+This function does exactly what the assignment asks for. First, it removes
+the transient. Then it stores the later values ofx n. These are the points that
+are used in the bifurcation diagram.
+How the bifurcation plot is built.The script then loops over the full
+grid ofr 2 values and stores all pairs (r 2, xn):
+Listing 13: Loop over the parameter values and build the bifurcation data.
+1r2_values = np.linspace(r2_min, r2_max, number_of_r2_values)
+2
+3x_plot = []
+4r2_plot = []
+5
+6for r2 in r2_values:
+7x_tail = orbit_tail_for_parameter(r1, r2, eps, x0, y0,
+8transient_steps, keep_steps)
+9x_plot.extend(x_tail)
+10r2_plot.extend([r2] * keep_steps)
+11
+12plt.plot(r2_plot, x_plot, ".", markersize=0.5)
+The logic of the plot is very important. For one fixed value ofr 2, the code
+does not plot just one point. Instead, it plots many late values ofx n. If
+the orbit approaches a fixed point, all these values are the same and only
+one branch appears. If the orbit approaches a periodic orbit, a small finite
+number of branches appears. If the orbit is more irregular, the points spread
+into a wider cloud.
+How the code is run.The script is run from the terminal with
+1python bifurcationCascade.py
+16
+
+===== PAGE 19 =====
+When the program finishes, it saves the figure and prints the file path of the
+saved image. This is handled by themainfunction in the script.
+4 Results
+4.1 Problem 1; Fixed points
+A fixed point is a point (x ∗, y∗) satisfying
+x∗ = (1−)r1x∗(1−x ∗) +r 2y∗(1−y ∗),(14)
+y∗ = (1−)r2y∗(1−y ∗) +r 1x∗(1−x ∗).(15)
+The point (0,0) is always a fixed point, since both right-hand sides become
+zero whenx ∗ =y ∗ = 0.
+To understand the structure of the other fixed points, define
+A=r 1x∗(1−x ∗), B=r 2y∗(1−y ∗).(16)
+Then the fixed point equations become
+x∗ = (1−)A+B,(17)
+y∗ =A+ (1−)B.(18)
+Adding and subtracting these equations gives
+x∗ +y ∗ =r 1x∗(1−x ∗) +r 2y∗(1−y ∗),(19)
+x∗ −y ∗ = (1−2) (r 1x∗(1−x ∗)−r 2y∗(1−y ∗)).(20)
+These relations help explain the difference between diagonal and asymmetric
+fixed points. For diagonal fixed points, we setx ∗ =y ∗ =s. Substitution
+gives
+s= ((1−)r 1 +r 2)s(1−s),(21)
+s= ((1−)r 2 +r 1)s(1−s).(22)
+Both equations must hold at the same time. Ifr 1 =r 2 =r, both equations
+reduce to
+s=rs(1−s).(23)
+17
+
+===== PAGE 20 =====
+Thus
+s= 0 ors= 1− 1
+r .(24)
+So whenr 1 =r 2 =r, the diagonal fixed points are
+(0,0) and
+
+1− 1
+r ,1− 1
+r
+
+.(25)
+Ifr 1 ̸=r 2, subtracting (22) from (21) gives
+0 = (1−2)(r 1 −r 2)s(1−s).(26)
+Sincer 1 ̸=r 2, this implies
+(1−2)s(1−s) = 0.(27)
+The cases= 0 gives the trivial fixed point. The cases= 1 does not satisfy
+the original equations, because the right-hand sides become zero while the
+left-hand sides are one. Therefore, ifr 1 ̸=r 2 and̸= 1/2, the only diagonal
+fixed point is
+(0,0) .(28)
+There is a special case when = 1/2. Then the two fixed point equa-
+tions have identical right-hand sides, so a fixed point must be diagonal. The
+equation becomes
+s= r1 +r 2
+2 s(1−s).(29)
+Thus there is also the diagonal fixed point
+
+1− 2
+r1 +r 2
+,1− 2
+r1 +r 2
+
+,(30)
+provided the value lies in the biologically relevant interval.
+Asymmetric fixed points can occur whenr 1 ̸=r 2. This is clear in the
+uncoupled case = 0, where the two equations are independent logistic fixed
+point equations. The four fixed points are
+(0,0),
+
+1− 1
+r1
+,0
+
+,
+
+0,1− 1
+r2
+
+,
+
+1− 1
+r1
+,1− 1
+r2
+
+.(31)
+18
+
+===== PAGE 21 =====
+Ifr 1 ̸=r 2, the last point is generally not diagonal. Thus asymmetric fixed
+points do exist for some parameter values.
+The same idea can also be explained locally using the implicit function
+theorem. Atr 1 =r 2 =r, the non-trivial diagonal fixed point is (s, s) with
+s= 1−1/r. The Jacobian determinant of the fixed point equations with
+respect to (x, y) at this point is
+detJ= ((1−2)(2−r)−1) (1−r).(32)
+When this determinant is non-zero, the fixed point persists under small
+changes of the parameters. Ifr 2 is changed slightly whiler 1 is fixed, the
+diagonal analysis above shows that the nearby non-trivial fixed point cannot
+remain diagonal whenr 1 ̸=r 2 and̸= 1/2. Therefore it becomes asymmetric.
+4.2 Problem 2; Periodic Orbits of Period 2 & 3
+In the updated version of the code, orbit points and initial guesses are printed
+with 10 decimal places:
+Listing 14: Printing with 10 decimal places.
+1def print_orbit(orbit, decimals=10):
+2for j, point in enumerate(orbit, start=1):
+3x, y = point
+4print(f" Point {j}: ({x:.{decimals}f}, {y:.{decimals}f})
+")
+5
+6def print_guesses(guess_list, decimals=10, max_show=10):
+7print(f" Number of converging initial guesses: {len(
+guess_list)}")
+8for guess in guess_list[:max_show]:
+9x0, y0 = guess
+10print(f" ({x0:.{decimals}f}, {y0:.{decimals}f})")
+If the code prints a period-2 orbit, this means that the root solver found a
+point satisfyingF 2(z) =z, that the residual is within tolerance, and that the
+minimal-period test confirms that the point is not a fixed point. If no period-
+3 orbit is printed, this only means that no such orbit was detected with the
+present numerical settings. It does not prove that period-3 orbits do not
+exist. The direct-iteration output should be interpreted only as a qualitative
+check. If the last iterates after the transient alternate between two values,
+19
+
+===== PAGE 22 =====
+this supports the presence of a period-2 orbit. If they repeat among three
+values, that supports a period-3 orbit. If no small period is detected, this
+simply means that the short observed sequence does not clearly repeat with
+a small period. Overall, this part shows that periodic behaviour can be
+detected numerically in the coupled system, and that the combination of
+root finding, minimal-period checking, and direct iteration provides a clear
+and consistent method for studying these orbits.
+4.3 Problem 3; Phase Portraits
+How to interpret a phase portrait.A phase portrait plots the pairs
+(xn, yn) after the transient. If all plotted points collapse onto one point, the
+orbit approaches a stable fixed point. If the points alternate between a small
+number of isolated locations, then the system approaches a periodic orbit. If
+the points spread over a larger set, then the dynamics is more irregular and
+may be chaotic.
+Figure 1 corresponds to the parameter set (r 1, r2, ε) = (2.8,2.9,0.1). In
+this case, the orbit collapses onto a single point in the phase plane. This
+indicates that the dynamics approaches a stable fixed point. The coupling
+is relatively weak and the growth parameters are moderate, so the long-time
+behaviour is simple and stable.
+Figure 2 shows the case (r1, r2, ε) = (3.1,3.4,0.3). Here the phase portrait
+consists of two distinct points. This is characteristic of a period-2 orbit: after
+the transient, the system alternates between two states instead of converging
+to a single fixed point.
+20
+
+===== PAGE 23 =====
+Figure 1: Phase portrait for (r 1, r2, ε) = (2.8,2.9,0.1). The orbit approaches
+a fixed point.
+Figure 2: Phase portrait for (r 1, r2, ε) = (3.1,3.4,0.3). The orbit approaches
+a period-2 cycle.
+21
+
+===== PAGE 24 =====
+Figure 3 corresponds to (r 1, r2, ε) = (3.85,3.95,0.2). In this case, the
+orbit no longer collapses to only one or a few points. Instead, it spreads over
+a broad region in the phase plane and forms a much more irregular set. This
+suggests a more complicated dynamical regime, consistent with chaotic or
+strongly aperiodic behaviour.
+Figure 3: Phase portrait for (r 1, r2, ε) = (3.85,3.95,0.2). The orbit forms a
+broad irregular set.
+4.4 Problem 4; Bifurcation Cascade
+How to interpret the figure.The resulting bifurcation diagram is shown
+in Figure 4. For smaller values ofr 2, the point cloud is concentrated on a
+single branch, which indicates convergence to one long-time value ofx n. As
+r2 increases, the branch splits into two or more branches, indicating periodic
+motion. In still more complicated regions, the points form a broader set,
+which indicates irregular dynamics. The resulting diagram shows that the
+22
+
+===== PAGE 25 =====
+Figure 4: Bifurcation cascade for the coupled logistic map withr 1 = 3.1 and
+ε= 0.3, obtained by varyingr 2 in the interval 2.8≤r 2 ≤3.97. For each
+value ofr 2, the first 1000 iterates were discarded and the next 250 values of
+xn were plotted.
+dynamics become gradually more complex asr 2 increases. For smaller values
+ofr 2, the long-time behaviour is simple. For intermediate ranges, the system
+exhibits branch splitting, consistent with periodic behaviour of higher period.
+In denser regions, the diagram suggests more irregular dynamics. Overall,
+the bifurcation diagram provides a compact summary of how the asymp-
+totic behaviour of the coupled system changes as the control parameterr 2 is
+increased.
+5 Use of LLMs in this project
+In this project, ChatGPT 5.5 Thinking and Gemini 3.1 Pro were used. The
+models were used to explain parts of the assignment (if the students had
+a problem with understanding certain words). Some of the prompts used
+could beWhat is the definition of...orWhat does ... mean and
+how do i approach this problem?. These models were used to produce
+the final report by receiving the promptHere is a draft report that i
+made, i want you to rewrite it, without any grammatical or spelling
+errors, i want you to include the important parts of the code in
+23
+
+===== PAGE 26 =====
+the report in a nice and professional way (like how it looks like
+in vscode.. The models were also used to put comments in the code in or-
+der to make the code easier to read and understand. These are some of the
+ways the models were used in this project.
+6 Discussion
+The three examples illustrate how the qualitative dynamics changes as the
+parameters increase. For smaller values ofr 1 andr 2, the system tends to
+settle to a fixed point. For intermediate values, the system may converge to
+a periodic orbit. For larger values, the dynamics becomes much more com-
+plicated and the phase portrait spreads over a wider set. The code therefore
+does more than just produce pictures. It gives a direct numerical way to
+distinguish between fixed-point behaviour, periodic behaviour, and more ir-
+regular dynamics by looking at the geometric structure of the long-time orbit
+in the phase plane.
+7 Files submitted
+Alongside this PDF file, the following python files were also submitted;
+•bifurcationCascade.py
+•common.py
+•periodicPoints.py
+•phasePortrait.py
+Also, images from problem 3 and 4 were zipped up along side with these
+python files and this report and submitted in studium.
+24

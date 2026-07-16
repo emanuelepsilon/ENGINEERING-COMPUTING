@@ -1,0 +1,796 @@
+
+
+===== PAGE 1 =====
+Uppsala University
+Modelling Complex Systems
+1MA256
+Lab 2; Cellular Automata for
+Excitable Media
+Group 0
+May 5, 2026
+Author:
+OskarBengtsson Creaser
+JuliaHells ´en
+EmanuelMelki
+MohammadNakhjavani
+JosephSiouri
+RikardSindi Lindgren
+
+===== PAGE 2 =====
+Contents
+1 Problem statement 2
+2 Problem 1: Conway’s Game of Life 2
+2.1 Problem statement . . . . . . . . . . . . . . . . . . . . . . . . 2
+2.2 Model and parameters . . . . . . . . . . . . . . . . . . . . . . 2
+2.3 Logical gates in the Game of Life . . . . . . . . . . . . . . . . 3
+2.4 Fundamental Cellular Components . . . . . . . . . . . . . . . 3
+2.5 Numerical method . . . . . . . . . . . . . . . . . . . . . . . . 5
+2.6 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.7 Interpretation . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2.8 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+3 Problem 2: Neuron Cellular Automaton 10
+3.1 Problem statement . . . . . . . . . . . . . . . . . . . . . . . . 10
+3.2 Model and parameters . . . . . . . . . . . . . . . . . . . . . . 10
+3.3 Design of Initial Configurations . . . . . . . . . . . . . . . . . 11
+3.4 Numerical method and Execution . . . . . . . . . . . . . . . . 12
+3.5 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+3.6 Interpretation . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+3.7 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+4 Problem 3: Periodicity in the Greenberg-Hastings cellular
+automaton 15
+4.1 Problem statement . . . . . . . . . . . . . . . . . . . . . . . . 15
+4.2 Task (a) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+4.3 Model and parameters . . . . . . . . . . . . . . . . . . . . . . 16
+4.4 Numerical method . . . . . . . . . . . . . . . . . . . . . . . . 17
+4.5 Task: (b) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+4.6 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+4.7 Task (c) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+4.8 Interpretation . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+4.9 Conclusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+5 Use of LLM tools 20
+6 Files submitted 22
+1
+
+===== PAGE 3 =====
+1 Problem statement
+In this project we are doing numerical experimentation on classical examples
+of cellular automata to illustrate and get a deep understanding of patterns in
+complex systems and how they can change with update rules. The cellular
+automata models we will be exploring are: Conway’s Game of Life (CGL),
+a simple three-state cellular automaton with periodic boundary conditions
+and Greenberg-Hastings cellular automaton.
+2 Problem 1: Conway’s Game of Life
+2.1 Problem statement
+In this section of the lab, we study Conway’s Game of Life (a cellular au-
+tomaton) to implement and simulate the behavior of logical gates: AND, OR,
+and NOT. The primary objective is to verify that simple local update rules
+applied to a grid of cells can result in universal computation, specifically by
+manipulating ”glider” patterns to transmit and process signals. The goal is
+to verify that our configurations produce the correct logical outputs for all
+possible input combinations.
+2.2 Model and parameters
+Conway’s Game of Life operates on a two-dimensional orthogonal grid where
+each cell is either dead (0) or alive (255). The state of the grid is updated
+synchronously in discrete time steps based on the number of living cells in a
+3×3 neighborhood:
+•A live cell survives if it has 2 or 3 live neighbors.
+•A live cell dies if it has fewer than 2 (loneliness) or more than 3 (over-
+population) live neighbors.
+•A dead cell becomes alive if it has exactly 3 live neighbors (reproduc-
+tion).
+In our modeling context, binary inputs are physically encoded into the simu-
+lation by the presence or absence of ”stopper” blocks. If an input parameter
+2
+
+===== PAGE 4 =====
+is 0, a stopper block is spawned in the trajectory of the signal glider, anni-
+hilating it prematurely. If the input parameter is 1, the stopper is removed,
+allowing the glider to traverse the grid and collide with other patterns. The
+output is read by visually observing the final state of the grid; an output of
+1 corresponds to a glider successfully escaping the collision zone, while an
+output of 0 corresponds to total mutual annihilation of the gliders.
+2.3 Logical gates in the Game of Life
+We define what the gates (AND, OR, and NOT) that we want to realize in
+CGL mean logically in our case.
+Gate Inputs Output rule Meaning
+AND A, B A∧B both true
+(00→0,01→0,10→0,11→1)
+OR A, B A∨B at least one true
+(00→0,01→1,10→1,11→1)
+NOT A ¬A reverses bit
+(0→1,1→0)
+Here, the AND gate is realized by having two gliders A and B interact in the
+same input region allowing one glider to reach the output region. The OR
+gate allows a glider to appear in the output when at least one of the input
+signals are present and the NOT gate is realized by having a reference glider
+interact with an input glider allowing an output glider to appear only if the
+input signal is missing.
+2.4 Fundamental Cellular Components
+To construct the functional logic gates, several distinct macroscopic patterns,
+known as ”components” or ”mechanisms”, were engineered. These patterns
+act as the physical hardware of our cellular circuits. The core components
+utilized across all gates include signal streams (gliders), interceptors (stop-
+pers), and signal sinks (eaters).
+1. Glider Streams (Signal Transmitters):The gliders are the pri-
+mary method of information transmission. By combining multiple gliders
+in a precise geometric formation, we create a continuous, moving stream of
+live cells. Thecreate forward gliderfunction produces a standard glider
+3
+
+===== PAGE 5 =====
+stream that travels diagonally down and to the right, whilecreatebackward glider
+produces a stream moving diagonally down and to the left. These are used
+as both the logical inputs (AandB) and the internal clock signals.
+Listing 1: Generator function for the forward-moving glider stream
+1def create_forward_glider(row_offset, col_offset):
+2# A standard glider stream pattern that moves diagonally.
+3glider_coords = [[5, 1],[6, 1],[6, 2],[5, 2],[5, 5],[4, 6],[5, 6],[6, 6],[3, 7],[7,
+7],[5, 8],[2, 9],[2, 10],
+4[3, 11], [4, 12],[5, 12],[6, 12],[7, 11],[8, 10],[8, 9],[7, 17],[7,
+20],[7, 21],[7, 22],[6, 22],
+5[5, 21],[6, 26],[5, 26],[1, 26],[0, 26],[1, 28],[5, 28],[2, 29],[3,
+29],[4, 29],[4, 30],[3, 30],
+6[2, 30],[3, 35],[4, 35],[4, 36],[3, 36]]
+7for cell_coord in glider_coords:
+8cell_coord[0] += row_offset
+9cell_coord[1] += col_offset
+10return glider_coords
+2. Stoppers (Interceptors):Stoppers are static, stable blocks of liv-
+ing cells placed directly in the path of a glider stream. Their purpose is to
+intercept and prematurely annihilate a signal. If a logical input is declared
+as 0 via the command line, the corresponding stopper is activated. By dy-
+namically deploying these stoppers based on the user’s input, we actuate the
+conditional logic of the gates.
+Listing 2: Generator function for interceptor blocks in the OR gate
+1def create_stopper_or_01():
+2# Intercept block for an OR gate with inputs 0, 1.
+3return [[13, 66], [14, 66], [13, 67], [15, 67], [15, 68], [15, 69], [16, 69]]
+3. Eaters (Signal Sinks):In complex gates like AND and OR, the
+collision of multiple gliders can produce ”cellular debris”—stray gliders or
+expanding patterns that threaten to corrupt the rest of the circuit. To main-
+tain stability, ”eater” components are placed at the terminus of collision
+zones. These stable structures consume incoming stray gliders and imme-
+diately repair themselves, effectively acting as an infinite sink for unwanted
+signals.
+Listing 3: Generator function for the eater pattern acting as a signal sink
+1def create_eater_or():
+2# Pattern designed to eliminate stray gliders at the end of the signal line.
+3return [[72, 82], [73, 82], [73, 83], [73, 84], [73, 85], [72, 86], [71, 86], [71, 85],
+[71, 89],
+4[72, 89], [72, 90], [71, 90], [75, 82], [75, 83], [76, 83], [76, 82]]
+4
+
+===== PAGE 6 =====
+These raw coordinate patterns are stored as lists and dynamically shifted
+across the grid usingrow offsetandcol offsetparameters, allowing us
+to align collisions with perfect sub-pixel precision.
+2.5 Numerical method
+The simulation is implemented in Python using thenumpylibrary for grid ma-
+nipulation andmatplotlib.animationfor rendering. The grid dimensions
+vary per gate to accommodate the trajectories (e.g., 40×80 for NOT, 80×130
+for AND). Boundaries are handled dynamically by ignoringIndexErrorex-
+ceptions, effectively simulating a bounded grid embedded in dead space. To
+run the simulations and generate the visual outputs, the user executes the
+Python scripts directly from the command line, providing the logical inputs
+as arguments.
+Listing 4: Execution syntax for the logic gates via terminal
+1# To run the NOT gate with input A=0
+2python not_gate.py 0
+3
+4# To run the AND gate with input A=1, B=0
+5python and_gate.py 1 0
+6
+7# To run the OR gate with input A=1, B=1
+8python or_gate.py 1 1
+The core numerical procedure iterates over every cell, counts the living neigh-
+bors, and stores the new states in a copy of the grid to ensure synchronous
+updates. The visual plots utilizecmap=’binary’to clearly distinguish dead
+cells (white) from alive cells (black).
+Listing 5: Core numerical update loop applying Conway’s rules
+1def compute_next_generation(frame_data):
+2global cellular_universe, animation_matrix
+3next_generation_universe = cellular_universe.copy()
+4
+5for row_idx in range(MAX_ROWS):
+6for col_idx in range(MAX_COLS):
+7total_alive = count_living_neighbors(cellular_universe, row_idx, col_idx)
+8
+9if cellular_universe[row_idx, col_idx] == ALIVE_CELL:
+10if (total_alive < 2) or (total_alive > 3):
+11next_generation_universe[row_idx, col_idx] = DEAD_CELL
+12else:
+13if total_alive == 3:
+14next_generation_universe[row_idx, col_idx] = ALIVE_CELL
+15
+16animation_matrix.set_data(next_generation_universe)
+5
+
+===== PAGE 7 =====
+17cellular_universe = next_generation_universe
+18return [animation_matrix]
+The provided code snippet demonstrates the core update mechanism of the
+cellular automaton. A nested loop iterates through every coordinate in the
+two-dimensional grid usingrow idxandcol idx. For each individual cell,
+thecount living neighborsfunction is called to determine the exact num-
+ber of active cells within its immediate 3×3 neighborhood.
+Once the neighbor count is established, conditional statements evaluate the
+state of the cell against Conway’s classical rules:
+•Underpopulation and Overpopulation:If the current cell is alive
+(ALIVE CELL) but has fewer than two or more than three neighbors, its
+corresponding coordinate in thenext generation universeis set to
+DEAD CELL.
+•Reproduction:If the current cell is dead but has exactly three active
+neighbors, it is spawned into the new generation as anALIVE CELL.
+•Survival:Any live cell with exactly two or three neighbors simply
+retains its alive state in the copied grid.
+Crucially, these updates are written to a separate copy of the grid (nextgeneration universe).
+This ensures that the state transitions happen synchronously across the entire
+grid, preventing a cell’s new state from prematurely affecting the neighbor
+calculations of adjacent cells in the same time step.
+The exact initial coordinates for the active components of each logic gate
+were extracted and saved to plain text files (not gate.txt,and gate.txt,
+andor gate.txt) to document the exact starting configurations.
+2.6 Results
+The simulations were executed for all possible permutations of inputs for the
+AND, OR, and NOT gates.
+6
+
+===== PAGE 8 =====
+Figure 1: Simulation snapshots of the NOT gate. Left: InputA= 0, a
+stopper block intercepts the input signal, allowing the output glider to pass
+(Output=1). Right: InputA= 1, the signals collide and annihilate (Out-
+put=0). Here, output is classiefied as the eater in the center left of the
+bottom of the figures. If any gliders manage to reach the eater designated as
+output then the output is 1, otherwise 0.
+7
+
+===== PAGE 9 =====
+(a) InputA= 0, B= 0. Both in-
+put signals are blocked by stoppers.
+The clock signal is destroyed in the
+collision zone, and no glider passes
+through. Output is 0.
+(b) InputA= 0, B= 1. Signal A
+is blocked while B is active. This is
+insufficient to save the clock signal,
+which is destroyed. Output is 0.
+(c) InputA= 1, B= 0. Signal A is
+active while B is blocked. The clock
+signal is still destroyed before it can
+pass through. Output is 0.
+(d) InputA= 1, B= 1. Both input
+signals flow freely. Their combined
+collisions clear the path, allowing the
+clock signal to pass unharmed. Out-
+put is 1.
+Figure 2: Here, output is classiefied as the eater in the center right of the
+bottom of the figures. If any gliders manage to reach the eater designated
+as output then the output is 1, otherwise 0. Simulation results for the AND
+gate under all four possible input combinations. An outgoing glider survives
+and reaches the output region exactly and only when bothA= 1 andB= 1.
+This confirms that the cellular automaton successfully mimics a logical AND
+truth table.
+8
+
+===== PAGE 10 =====
+(a) InputA= 0, B= 0. Both input
+signals are intercepted by stoppers.
+No gliders reach the output region.
+Output is 0.
+(b) InputA= 0, B= 1. Signal A is
+blocked, but signal B flows freely and
+reaches the output region. Output is
+1.
+(c) InputA= 1, B= 0. Signal B is
+blocked, but signal A flows freely and
+reaches the output region. Output is
+1.
+(d) InputA= 1, B= 1. Both input
+signals flow freely and independently
+reach the output region. Output is 1.
+Figure 3: Here, output is classiefied as the eater in the center of the bottom
+of the figures. If any gliders manage to reach the eater designated as output
+then the output is 1, otherwise 0. Simulation results for the OR gate under
+all four possible input combinations. An outgoing glider successfully reaches
+the output region whenever at least one of the inputs (AorB) is active (1).
+This confirms that the cellular automaton successfully mimics a logical OR
+truth table.
+2.7 Interpretation
+The numerical results successfully mirror standard Boolean truth tables. The
+implementation shows that information processing in an excitable medium
+depends heavily on exact spatial alignment and timing. For instance, the
+NOT gate relies on mutual annihilation; whenA= 1, the incoming glider
+9
+
+===== PAGE 11 =====
+hits the reference clock glider, reducing both to zero active cells. The ”Eater”
+mechanisms act as signal sinks, preventing residual debris from polluting the
+domain. The figures confirm that local interactions are sufficient to dictate
+global logical outcomes.
+2.8 Conclusion
+By carefully placing initial cell configurations and utilizing physical inter-
+actions (collisions and blockades), we constructed robust logical AND, OR,
+and NOT gates. This demonstrates that Conway’s Game of Life is capable of
+simulating digital circuits and information processing purely through basic
+cellular automaton rules.
+3 Problem 2: Neuron Cellular Automaton
+3.1 Problem statement
+In this section, we study an excitable medium modeled by a simple three-
+state cellular automaton that mimics the firing cycle of biological neurons.
+The goal is to investigate how local deterministic rules governing excitation
+and recovery can lead to complex macroscopic behavior. Specifically, we
+aim to design initial configurations that produce three distinct dynamical
+phenomena: a stable moving pattern, a moving pattern that spawns new
+structures along its path, and a system exhibiting strictly periodic motion.
+3.2 Model and parameters
+The automaton operates on anN×Ngrid with periodic boundary conditions,
+effectively forming a torus. Each cell (representing a neuron) can exist in one
+of three states:
+•Ready (0):The resting potential state, waiting for a stimulus.
+•Firing (1):The action potential state, transmitting the signal.
+•Resting (2):The refractory period, unable to fire regardless of stim-
+ulus.
+10
+
+===== PAGE 12 =====
+The update rules applied synchronously to all cells at each time step are as
+follows:
+1. A neuron in thereadystate becomesfiringin the next step if exactly
+two of its eight surrounding neighbors (Moore neighborhood) are cur-
+rently firing.
+2. A neuron in thefiringstate automatically transitions to theresting
+state in the next step.
+3. A neuron in therestingstate automatically recovers to thereadystate
+in the next step.
+3.3 Design of Initial Configurations
+To satisfy the three specific behavioral requirements of the assignment, tar-
+geted initial configurations were designed by manipulating the placement of
+FIRING (1) and RESTING (2) cells on a background of READY (0) cells.
+Task A: Stable Moving PatternTo achieve a stable pattern that
+moves forward in time, a minimal 2-cell wide ”glider” was constructed. The
+front of the glider consists of two FIRING cells, immediately followed by a
+tail of two RESTING cells. Because the front is exactly two cells wide, the
+READY cells directly ahead of the front perceive exactly two firing neighbors.
+This perfectly satisfies the excitation rule, causing the glider to pull itself
+forward in a straight line infinitely.
+Listing 6: Generator function for the stable moving glider
+1def task_a_moving_pattern(N):
+2grid = np.full((N, N), READY)
+3c = N // 2
+4grid[c, c:c+2] = FIRING # Front (Firing)
+5grid[c+1, c:c+2] = RESTING # Tail (Resting)
+6return grid, "Task A: Stable Moving Glider"
+Task B: Moving and Creating New PatternsFor the requirement
+of a moving pattern that spawns new structures, a complex configuration
+named ”The Stealth Bomber” was engineered. This structure has three parts:
+a stable glider at the front acting as an engine, two diagonal lines acting as
+shielding wings, and an unstable ”reactor” payload enclosed within the wings.
+As The Stealth Bomber moves forward, the internal payload continuously
+interacts with the inner walls of the shield, shedding smaller, perfectly formed
+gliders backward into its wake.
+11
+
+===== PAGE 13 =====
+Listing 7: Generator function for The Stealth Bomber pattern
+1def task_b_moving_and_creating(N):
+2grid = np.full((N, N), READY)
+3c = N // 2
+4
+5# 1. The Front (Stable glider pulling upwards)
+6grid[c, c] = FIRING
+7grid[c, c+1] = FIRING
+8grid[c+1, c] = RESTING
+9grid[c+1, c+1] = RESTING
+10
+11# 2. The Shields/Wings (Diagonal lines)
+12for i in range(1, 10):
+13grid[c+i, c+1+i] = FIRING # Right wing
+14grid[c+i+1, c+1+i] = RESTING
+15grid[c+i, c-i] = FIRING # Left wing
+16grid[c+i+1, c-i] = RESTING
+17
+18# 3. The Payload (Unstable reactor)
+19grid[c+4, c] = FIRING
+20grid[c+4, c+1] = FIRING
+21grid[c+5, c] = RESTING
+22grid[c+6, c+1] = FIRING
+23
+24return grid, "Task B: The Puffer Carrier"
+Task C: Periodic MotionTo create periodic motion, we utilize the
+exact same fundamental logic as the glider in Task A, but reoriented. By
+placing the FIRING cells to the right and the RESTING cells to the left, the
+glider travels horizontally rather than vertically. Because the grid utilizes
+periodic boundary conditions vianp.roll(), the glider traverses the grid,
+disappears over the right edge, and seamlessly reappears on the left edge.
+Listing 8: Generator function for periodic motion via boundary wrap-around
+1def task_c_periodic_motion(N):
+2grid = np.full((N, N), READY)
+3c = N // 2
+4
+5# FIRING cells on the right (direction of motion)
+6grid[c:c+2, c] = FIRING
+7
+8# RESTING cells on the left (pushing forward)
+9grid[c:c+2, c-1] = RESTING
+10
+11return grid, "Task C: Periodic Motion (Boundary Wrap-around)"
+3.4 Numerical method and Execution
+The simulation is implemented in Python usingnumpyarrays to represent
+theN×Ngrid. The periodic boundary conditions are efficiently handled
+12
+
+===== PAGE 14 =====
+usingnp.roll(), which shifts the array along specified axes. This allows
+for a seamless summation of firing neighbors across the torus edges without
+requiring complex edge-case logic.
+To run the simulation and observe the different dynamic behaviors, the
+user must execute the Python script from the command line:
+Listing 9: Command to run the neuron cellular automaton
+1python neuron_branching_example.py
+Inside the code, the specific initial configuration is selected by modi-
+fying theTASKvariable at the bottom of the script. The user can assign
+this variable to"A","B", or"C"to simulate the stable moving pattern, the
+pattern-creating puffer, or the periodic motion, respectively:
+Listing 10: Task selection logic in the main execution block
+1if __name__ == ’__main__’:
+2N = 40 # Grid size
+3
+4# SELECT TASK HERE: Change to ’A’, ’B’, or ’C’
+5TASK = "C"
+6
+7if TASK == ’A’:
+8grid, title = task_a_moving_pattern(N)
+9elif TASK == ’B’:
+10grid, title = task_b_moving_and_creating(N)
+11elif TASK == ’C’:
+12grid, title = task_c_periodic_motion(N)
+13
+14run_simulation(grid, N, title)
+The synchronous state transition is achieved by creating a copy of the grid
+(new grid), applying the three biological rules simultaneously using fast
+boolean indexing, and then overwriting the original grid.
+Listing 11: The state transition logic utilizing boolean indexing
+1def update(frameNum, img, grid):
+2new_grid = grid.copy()
+3firing_neighbors = count_firing_neighbors(grid)
+4
+5# 1. Ready -> Firing if exactly 2 neighbors are firing
+6new_grid[(grid == READY) & (firing_neighbors == 2)] = FIRING
+7# 2. Firing -> Resting
+8new_grid[grid == FIRING] = RESTING
+9# 3. Resting -> Ready
+10new_grid[grid == RESTING] = READY
+11
+12img.set_data(new_grid)
+13grid[:] = new_grid[:]
+14return img,
+13
+
+===== PAGE 15 =====
+The visualization is handled bymatplotlib.animationwith a customListedColormap
+mapping the states to high-contrast colors: black (Ready), yellow (Firing),
+and royal blue (Resting).
+3.5 Results
+Animation of the three tasks. Black cells are Ready, yellow cells are Firing,
+and blue cells are Resting. Left (Task A): A stable glider moving straight up.
+Middle (Task B): The Stealth Bomber moving upwards while spawning glid-
+ers backward. Right (Task C): A glider traversing the grid, creating periodic
+motion via boundary wrap-around.
+3.6 Interpretation
+We systematically investigated all the specific cases required by the assign-
+ment. The numerical results highlight the fundamental nature of excitable
+media: a localized excitation triggers neighboring resting regions, but the
+trailing refractory period (therestingstate) prevents the signal from travel-
+ing backward. This enforces unidirectional wave propagation.
+It is interesting to note the structural similarities between the minimal so-
+lutions. The core pattern logic for Task A and Task C is fundamentally
+identical; both utilize the exact same minimal glider configuration. The only
+difference is their orientation on the grid, causing Task A to travel vertically
+and Task C to travel horizontally.
+14
+
+===== PAGE 16 =====
+Furthermore, the complex ”Stealth Bomber” configuration developed for
+Task B is highly versatile and technically fulfills the criteria for all three
+tasks simultaneously: it is a pattern moving forward in time (Task A), it
+creates new moving patterns along its path (Task B), and due to the pe-
+riodic boundary conditions, its emitted gliders eventually wrap around the
+grid, resulting in a macroscopic periodic motion (Task C). The complexity
+observed here demonstrates that even highly restrictive excitation rules can
+support localized chaos capable of ejecting stable, traveling structures.
+3.7 Conclusion
+By carefully arranging the initial distribution of firing and resting cells, we
+successfully demonstrated unidirectional signal transmission, complex pat-
+tern generation, and boundary-driven periodicity. The simple three-state
+automaton serves as an effective, discretized analog for the propagation of
+action potentials in biological neural networks.
+4 Problem 3: Periodicity in the Greenberg-
+Hastings cellular automaton
+4.1 Problem statement
+In this section we model and study the periodicity of the Greenberg-Hastings
+cellular automaton. The automaton, in comparison to the ones modelled
+above, has a propensity to settle in complex periods, were the periodic be-
+haviour is global, compared to the local periodicity often present in the mod-
+els presented above. The following section, besides describing and presenting
+a model of the automaton, will also present examples of such periods.
+4.2 Task (a)
+A note on Cardinality:The simplest view of the initial configurations
+cardinality would be to view it as ann×ngrid, where each position can take
+Npossible values and the cardinality of the system would therefore beN n2
+.
+In this case however, we have periodic boundary conditions, how a pattern
+evolves is position independent. To determine the cardinality of the system
+we would need to take into account the symmetries of initial configurations
+15
+
+===== PAGE 17 =====
+in relation to translations.
+One way of calculating this would be to apply Burnside’s Lemma, here pre-
+sented in a way adapted to the situation. For aZ n ×Z n grid, we can calculate
+our translation independent initial configurations i.e. our cardinality, by
+cardinality= 1
+|Z 2
+n|
+X
+(i,j)∈Z 2n
+ϕ(i, j).
+ϕ(i, j) being all the initial conditions invariant under the translation (x, y) +
+(i, j).1 If we definetas
+t(i, j)≡0mod(n),
+we know our pattern must repeat itself every t shift, resulting inn2/tpossible
+patterns. As we haveNpossible states, we therefore get that
+ϕ(i, j) =N n2/t.
+To calculatet, we simply use thatt=lcm(t i, tj),t j defined ast j ·j≡
+0mod(n),which is solved byt j = n
+gcd(j,n) .We therefore get the following
+expression for the cardinality of the initial configurations
+cardinality= 1
+n2
+X
+(i,j)∈Z 2n
+N n2/lcm( n
+gcd(i,n) , n
+gcd(j,n) )
+4.3 Model and parameters
+The automaton abide by similar principles as the ones described above, ex-
+cept each grid-cell only has four directions of affect(north, west, east and
+south) and several states. The model is constructed via the grid sizen, a
+state parameterNand excitation parametere < N−1. The system abides
+by the following rules.
+•If a cell is in statek, where 1< k < N−2, then it advances tok+ 1.
+•If a cell is in stateN−1,then it returns to 0.
+•A cell that is in state 0, becomes state 1, if at least one neighbour is in
+statek≤eand otherwise remains 0.
+Unless stated otherwise, the plots generated by the following models used
+the parametersn= 50,N= 5 ande= 2.
+1As an example, a checker board would be invariant under the transformation (1,1).
+16
+
+===== PAGE 18 =====
+4.4 Numerical method
+The class"GHCA Simulator"includes several functions. With an option
+to read an initial file or else create a random grid following all the rules
+of Greenberg Hastings Cellular Automaton. It includes an animation that
+counts and displays the steps, transient and period. Everytime it is run
+it creates (or updates new values if repeated) a text-filefinal config.txt
+with the configuration of the current initial grid.
+Listing 12: The Step Function with rules for Greenberg Hastings Cellular
+Automaton
+1def get_next_state(self):
+2"""Vectorized update"""
+3new_grid = np.zeros_like(self.grid)
+4
+5# Identify Excited Bit/boolian-Mask (1 <= state <= e)
+6is_excited = (self.grid >= 1) & (self.grid <= self.e)
+7
+8# Von Neumann Neighborhood check
+9# Shifted grids: neighbors outside are 0 (not excited) due to padding
+10up = np.pad(is_excited, ((0,1),(0,0)), mode=’wrap’)[1:, :]
+11down = np.pad(is_excited, ((1,0),(0,0)), mode=’wrap’)[:-1, :]
+12left = np.pad(is_excited, ((0,0),(0,1)), mode=’wrap’)[:, 1:]
+13right = np.pad(is_excited, ((0,0),(1,0)), mode=’wrap’)[:, :-1]
+14
+15neighbor_excited = up | down | left | right
+16
+17# Rule 1: State 0 transitions
+18mask_0 = (self.grid == 0)
+19new_grid[mask_0 & neighbor_excited] = 1
+20new_grid[mask_0 & ~neighbor_excited] = 0
+21
+22# Rule 2: 1 <= s <= N-2 transitions
+23mask_advance = (self.grid >= 1) & (self.grid <= self.N - 2)
+24new_grid[mask_advance] = self.grid[mask_advance] + 1
+25
+26# Rule 3: s = N-1 transitions to 0
+27mask_reset = (self.grid == self.N - 1)
+28new_grid[mask_reset] = 0
+29
+30return new_grid
+The function works by firstly generating a padded grid, imitating the models
+periodic boundary conditions. This grid is therafter spliced into four separate
+direction grids shifted in each respective direction. Each direction grid can
+thereafter be evaluated to determine the neighbour status for each square
+and our original grid can be updated accordingly.
+17
+
+===== PAGE 19 =====
+4.5 Task: (b)
+Listing 13: Important parameters incheck cyclefunction are defined first
+1# Cycle Detection
+2self.history = {} # {hash: step_index}
+3self.transient_time = None
+4self.period = None
+The functioncheck cycleis used in theGHCA Simulatorclass to detect
+transient times and periods. Because of the systems periodicity,the system
+follows a fixed sequence of states that repeats indefinitely. The moment
+state hashinself.historybecomes True, the simulation has found a state
+it already visited. The transient is the step index where that state was first
+seen. The periodself.periodbecomes updated with the value of the current
+step minus that first step index (row 9).
+Listing 14: Period of evolution function
+1def check_cycle(self):
+2"""Detects transient time and period using state hashing."""
+3if self.period is not None:
+4return
+5
+6state_hash = hash(self.grid.tobytes())
+7if state_hash in self.history:
+8self.transient_time = self.history[state_hash]
+9self.period = self.steps - self.transient_time
+10print(f"Cycle Detected! Transient: {self.transient_time}, Period: {self.period}")
+11else:
+12self.history[state_hash] = self.steps
+4.6 Results
+After looping through a sufficient transient, two randomly generated grids
+landed in the following two orbits.
+18
+
+===== PAGE 20 =====
+Figure 4: Two periodic orbits for a randomly generated GHCA using the
+parametersn= 50,N= 5 ande= 2
+Notice that, even though the initial configurations were independently
+randomly generated, they both ended up having periodp= 5 =N. This
+type of periodicity is typical for Greenberg- Hasting cellular Automatons, it
+is however possible to attain different orbit behaviour using certain initial
+conditions and somewhat degenerate parameters.
+4.7 Task (c)
+By loading the initial conditons pattern in a file in our program:
+
+
+1 0 0 0
+3 1 0 0
+0 3 1 0
+0 0 3 1
+
+ ,
+Listing 15: Period of evolution function
+1if __name__ == "__main__":
+2# Test with total off N=5 states, where 1-2 are excited and 3-4 are recovery
+3# Swap initial_file = None to "filename" if adding an initial file
+4sim = GHCA_Simulator(n=50, N_states=5, e_param=1, initial_file= "problem2_c.txt")
+5sim.run()
+6
+We adjust the correct parameters and we can generate the following periodic
+behavior. In the figure it might be hard to see but notice how the rectangles
+where the state valuek= 0, are of thickness two squares. However, if we
+return to our original parameters, whilst using the initial condition pattern
+given above, we return to the familiar period pattern.
+19
+
+===== PAGE 21 =====
+Figure 5: Period 5 GHCA orbit with the initial conditions given above and
+the parametersn= 50,N= 5 ande= 1.
+Figure 6: Period 5 GHCA orbit with the initial conditions given above and
+the parametersn= 50,N= 5 ande= 2.
+4.8 Interpretation
+It is generally the case that the automatons, unless given certain patterns as
+initial conditions, evolve into complicated cyclic patterns, where the period
+matches the models state parameter. An exception to this state parameter
+period matching, usually occur if the model has degenerate parameters or
+attains a degenerate state e.g. the entire grid being constantly zero.
+4.9 Conclusion
+The GreenBergHasting cellular automaton has a propensity to settle into
+orbits directly linked to it’s parameters, mainly it’s state parameter. This is
+however of no surprise, as the most basic cycle a grid square can traverse is
+simply cycling it’s states. An exception to this is wave propagation, where
+the statek= 0 part of the wave might be thicker, delaying the period by
+one cycle.
+5 Use of LLM tools
+LLM’s were used in the making of this report. For this report Gemini 3.1
+Pro and ChatGPT 5.5 Thinking were utilized. When it came to writing
+20
+
+===== PAGE 22 =====
+the final version of the report itself, these LLMs were used in order to elimi-
+nate spelling errors and to keep an academic language throughout the report.
+In problem 1 (Conway’s Game Of Life), LLMs were used to learn about
+components in the Game Of Life, some prompts used in the first problem
+were
+•Give some examples of different types of Glider Guns with different
+periods.
+•Give some examples of different types of eaters and blockers.
+•Generate txt files with the coordinates of this system.
+•How do we animate in python?
+The response to the last prompt was very important for the generation of
+the results in problem 1 since we wanted an animated results and not just
+simple snap shots at different time stamps. Gemini helped us to animate our
+results which makes the results clearer and easier to follow.
+In problem 2 (Neuron cellular automaton), LLMs were used to understand
+how moving patterns worked in this problem. A very useful prompt wasHow
+do we go about creating a pattern which moves forward in time and
+creats new patterns of its own as it moves forward?Gemini gave
+us the idea of the Stealth Bomber in the answer to this prompt, this was then
+further investigated by the group and was used in the making of the report.
+For problem 3, a base model was produced with LLM Gemini with the as-
+sistance prompt also prompted with Gemini. This base model was tweaked
+along the way to give a more effective and sleek code and apporpriate com-
+ments. Also parts of the adjustments was assisted by AI. The prompt for
+the base model:
+1The Base Code Prompt
+2Role: Act as a senior Python developer specializing in computational physics and cellular
+automata.
+3Objective: Write a Python program to simulate the Greenberg-Hastings cellular automaton (
+GHCA) on an n x n grid with periodic boundary conditions.
+4
+51. Model Rules & Parameters:
+6Grid: n x n NumPy array.
+7Zero Boundaries: Cells outside the grid boundaries are permanently in state 0.
+21
+
+===== PAGE 23 =====
+8States (N): Total number of states {0, 1, ..., N-1}.
+9Excitation (e): States 1, 2, ..., e are considered "Excited."
+10Neighborhood: Use the Von Neumann neighborhood (Up, Down, Left, Right).
+11Transition Logic: At each time step, all cells update simultaneously:
+12If State s = 0: Becomes 1 if at least one neighbor is in an excited state (1 <= neighbor <=
+e). Otherwise, remains 0.
+13If 1 <= s <= N-2: Advances to s + 1.
+14If State s = N-1: Returns to 0.
+15
+162. Functional Requirements:
+17Initialization: Provide a function to generate a random initial configuration. Also,
+include a placeholder function to read an initial configuration from a file (e.g., .txt
+or .csv).
+18Cycle Detection: Implement logic to detect when the grid enters a repeating cycle.
+19Store the hash of grid states in a dictionary: {state_hash: step_index}.
+20Calculate and print the Transient Time (steps before the cycle starts) and the Eventual
+Period m (length of the cycle).
+21File Output: Capability to save the final grid configuration to a file.
+22
+233. Visualization & UI:
+24Animation: Create a real-time animation of the automaton using matplotlib.animation.
+25Interactive Controls: Include a Start/Pause button using matplotlib.widgets.Button.
+26Aesthetics: Use a discrete, multi-color colormap to clearly distinguish between the Resting
+, Excited, and Recovery states.
+27Status Overlay: Display the current step count, transient time, and period m on the
+animation window.
+28
+294. Performance:
+30Use NumPy vectorization (e.g., np.roll or slicing) to handle the neighbor checks and state
+transitions efficiently without nested loops over grid coordinates.
+6 Files submitted
+The following files were submitted along with the report.
+•not gate.py
+•and gate.py
+•or gate.py
+•not gate.txt
+•and gate.txt
+•or gate.txt
+•neuron branching.py
+•GHCA.py
+22
+
+===== PAGE 24 =====
+References
+[1] Johnston, N., & Greene, D. (2022).Conway’s game of life: Mathematics
+and construction. Self-published. https://doi.org/10.5281/zenodo.6097284
+https://conwaylife.com/book
+[2] The period-60 glider gun, reflector, eater and the offsets are
+adapted from: Alex Bespoyasov, ”Implementing Logic Gates
+in the Game of Life”, https://bespoyasov.me/blog/binary-adder-
+in-the-game-of-life-2/ and its accompanying GitHub repository:
+https://github.com/bespoyasov/binary-full-adder-in-the-game-of-life
+[3] Marieral from the course, including: Lab instruction: Lab 02. Cellular
+Automata for Excitable Media. Lecture 8 slides: Logic Gates and Self-
+Simulation in the Game of Life.
+23

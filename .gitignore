@@ -1,0 +1,32 @@
+# Build output
+build/
+dist/
+*.o
+*.obj
+*.exe
+usb-primes-and-c/calculator
+usb-primes-and-c/optimizedprimefinder
+
+# MATLAB
+*.asv
+*.fig
+__MACOSX/
+
+# Python/helpers
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Personal documents
+*.pdf
+*.docx
+*.webp
+*.png
+*.jpg
+*.jpeg
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
