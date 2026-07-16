@@ -11,6 +11,6 @@ Projects related to MATLAB, C, numerical computing, simulations, scientific prog
 - `usb-control-theory` - control theory simulation scripts from USB material.
 - `usb-primes-and-c` - prime-number and C practice experiments from USB material.
 
-## Exclusions
+## Notes
 
-Folders and files named like `MA1`, `MA2`, `MA3`, or similar course-assignment material were intentionally not added.
+This repository is curated for public portfolio use and focuses on selected engineering, embedded, numerical, and scientific computing projects.
