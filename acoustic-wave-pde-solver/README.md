@@ -14,9 +14,9 @@ This is a compact computational physics project designed to show practical numer
 
 ## Outputs
 
-| Wavefield simulation | Receiver traces | Energy diagnostics |
-| --- | --- | --- |
-| ![2D acoustic wave propagation](assets/acoustic-wavefield.gif) | ![Receiver traces](assets/acoustic-receivers.gif) | ![Energy diagnostic](assets/acoustic-energy.gif) |
+| Acoustic pressure surface | Velocity distribution surface |
+| --- | --- |
+| <img src="assets/acoustic-pressure-3d.gif" alt="3D acoustic pressure surface" width="480"> | <img src="assets/acoustic-velocity-3d.gif" alt="3D acoustic velocity distribution surface" width="480"> |
 
 ## Run
 
@@ -27,6 +27,8 @@ python solver.py
 Generated files:
 
 - `assets/acoustic-wavefield.gif`
+- `assets/acoustic-pressure-3d.gif`
+- `assets/acoustic-velocity-3d.gif`
 - `assets/acoustic-receivers.gif`
 - `assets/acoustic-energy.gif`
 - `reports/receiver_traces.csv`

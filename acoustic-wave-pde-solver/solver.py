@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 
 ROOT = Path(__file__).resolve().parent
@@ -99,6 +100,97 @@ def render_wavefield(field: np.ndarray, velocity: np.ndarray, step: int, energy:
     return image
 
 
+def style_3d_axes(ax) -> None:
+    ax.set_facecolor("#000000")
+    ax.figure.set_facecolor("#000000")
+    ax.xaxis.set_pane_color((0.02, 0.02, 0.02, 1.0))
+    ax.yaxis.set_pane_color((0.02, 0.02, 0.02, 1.0))
+    ax.zaxis.set_pane_color((0.02, 0.02, 0.02, 1.0))
+    ax.xaxis._axinfo["grid"]["color"] = (0.55, 0.55, 0.55, 0.32)
+    ax.yaxis._axinfo["grid"]["color"] = (0.55, 0.55, 0.55, 0.32)
+    ax.zaxis._axinfo["grid"]["color"] = (0.55, 0.55, 0.55, 0.32)
+    ax.tick_params(colors="#d8dde6", labelsize=8)
+    ax.xaxis.label.set_color("#d8dde6")
+    ax.yaxis.label.set_color("#d8dde6")
+    ax.zaxis.label.set_color("#d8dde6")
+    ax.title.set_color("#e8edf4")
+
+
+def smooth_for_rendering(surface: np.ndarray, passes: int = 18) -> np.ndarray:
+    smoothed = surface.copy()
+    for _ in range(passes):
+        smoothed = (
+            4.0 * smoothed
+            + 2.0 * (
+                np.roll(smoothed, 1, axis=0)
+                + np.roll(smoothed, -1, axis=0)
+                + np.roll(smoothed, 1, axis=1)
+                + np.roll(smoothed, -1, axis=1)
+            )
+            + (
+                np.roll(np.roll(smoothed, 1, axis=0), 1, axis=1)
+                + np.roll(np.roll(smoothed, 1, axis=0), -1, axis=1)
+                + np.roll(np.roll(smoothed, -1, axis=0), 1, axis=1)
+                + np.roll(np.roll(smoothed, -1, axis=0), -1, axis=1)
+            )
+        ) / 16.0
+    return smoothed
+
+
+def render_3d_surface(
+    x_grid: np.ndarray,
+    y_grid: np.ndarray,
+    surface: np.ndarray,
+    title: str,
+    z_label: str,
+    step: int,
+    z_limit: float,
+    cmap: str,
+    view_angle: float,
+) -> Image.Image:
+    fig = plt.figure(figsize=(8.2, 5.4), dpi=100, facecolor="#000000")
+    ax = fig.add_subplot(111, projection="3d")
+    style_3d_axes(ax)
+    rendered = smooth_for_rendering(surface)
+    surface_limit = max(float(np.max(np.abs(rendered))), 1.0e-12)
+    display_surface = 0.86 * z_limit * rendered / surface_limit
+    ax.plot_surface(
+        x_grid,
+        y_grid,
+        display_surface,
+        cmap=cmap,
+        vmin=-z_limit,
+        vmax=z_limit,
+        linewidth=0.0,
+        antialiased=True,
+        shade=True,
+    )
+    ax.contour(
+        x_grid,
+        y_grid,
+        display_surface,
+        zdir="z",
+        offset=-z_limit,
+        levels=14,
+        cmap=cmap,
+        linewidths=0.8,
+        alpha=0.75,
+    )
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.set_zlim(-z_limit, z_limit)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel(z_label)
+    ax.set_title(f"{title}   t-step = {step:04d}", pad=14, fontsize=13, weight="bold")
+    ax.view_init(elev=28, azim=view_angle)
+    fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=0.92)
+    fig.canvas.draw()
+    image = Image.fromarray(np.asarray(fig.canvas.buffer_rgba())).convert("RGB")
+    plt.close(fig)
+    return image
+
+
 def render_receivers(times: list[float], traces: np.ndarray, visible: int) -> Image.Image:
     fig, ax = plt.subplots(figsize=(6.6, 5.2), dpi=100)
     labels = ["R1", "R2", "R3", "R4"]
@@ -161,6 +253,12 @@ def simulate() -> None:
     energy: list[float] = []
     traces: list[list[float]] = []
     wave_frames: list[Image.Image] = []
+    pressure_3d_frames: list[Image.Image] = []
+    velocity_3d_frames: list[Image.Image] = []
+    surface_index = np.linspace(0, n - 1, 72).astype(int)
+    x_values = np.linspace(0.0, 1.0, n)[surface_index]
+    y_values = np.linspace(0.0, 1.0, n)[surface_index]
+    x_grid, y_grid = np.meshgrid(x_values, y_values)
 
     for step in range(steps):
         t = step * dt
@@ -170,7 +268,7 @@ def simulate() -> None:
             - (1.0 - damping) * p_old
             + (dt * dt) * (velocity * velocity) * lap
         )
-        p_next[source] += (dt * dt) * 850.0 * ricker(t, frequency=24.0, delay=0.08)
+        p_next[source] += (dt * dt) * 1100.0 * ricker(t, frequency=14.0, delay=0.10)
 
         p_next[0, :] = 0.0
         p_next[-1, :] = 0.0
@@ -187,6 +285,35 @@ def simulate() -> None:
 
         if step % 12 == 0:
             wave_frames.append(render_wavefield(p_now, velocity, step, discrete_energy))
+        if step >= 96 and step % 16 == 0:
+            pressure_surface = p_now[np.ix_(surface_index, surface_index)]
+            velocity_surface = velocity_like[np.ix_(surface_index, surface_index)] * 0.0018
+            pressure_3d_frames.append(
+                render_3d_surface(
+                    x_grid,
+                    y_grid,
+                    pressure_surface,
+                    "Acoustic Pressure Field",
+                    "pressure",
+                    step,
+                    0.18,
+                    "turbo",
+                    -58 + 0.04 * step,
+                )
+            )
+            velocity_3d_frames.append(
+                render_3d_surface(
+                    x_grid,
+                    y_grid,
+                    velocity_surface,
+                    "Velocity Distribution",
+                    "velocity",
+                    step,
+                    0.24,
+                    "viridis",
+                    -52 + 0.04 * step,
+                )
+            )
 
         p_old, p_now = p_now, p_next
 
@@ -204,6 +331,8 @@ def simulate() -> None:
     ]
 
     save_gif(wave_frames, ASSETS_DIR / "acoustic-wavefield.gif", duration=70)
+    save_gif(pressure_3d_frames, ASSETS_DIR / "acoustic-pressure-3d.gif", duration=70)
+    save_gif(velocity_3d_frames, ASSETS_DIR / "acoustic-velocity-3d.gif", duration=70)
     save_gif(receiver_frames, ASSETS_DIR / "acoustic-receivers.gif", duration=70)
     save_gif(energy_frames, ASSETS_DIR / "acoustic-energy.gif", duration=70)
 

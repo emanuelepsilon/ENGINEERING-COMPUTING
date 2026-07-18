@@ -4,9 +4,9 @@ Projects related to MATLAB, C, numerical computing, simulations, scientific prog
 
 ## Visual Samples
 
-| Acoustic wave PDE | Receiver traces | Energy diagnostics |
-| --- | --- | --- |
-| ![2D acoustic wave propagation](acoustic-wave-pde-solver/assets/acoustic-wavefield.gif) | ![Synthetic receiver traces](acoustic-wave-pde-solver/assets/acoustic-receivers.gif) | ![Discrete energy diagnostic](acoustic-wave-pde-solver/assets/acoustic-energy.gif) |
+| Acoustic pressure surface | Velocity distribution surface |
+| --- | --- |
+| <img src="acoustic-wave-pde-solver/assets/acoustic-pressure-3d.gif" alt="3D acoustic pressure surface" width="480"> | <img src="acoustic-wave-pde-solver/assets/acoustic-velocity-3d.gif" alt="3D acoustic velocity distribution surface" width="480"> |
 
 | Coupled map dynamics | Neural cellular automaton | Vicsek model alignment |
 | --- | --- | --- |
