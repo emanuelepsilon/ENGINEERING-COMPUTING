@@ -24,7 +24,7 @@ This is a compact computational physics project designed to show practical numer
 python solver.py
 ```
 
-Generated files:
+Output files:
 
 - `assets/acoustic-wavefield.gif`
 - `assets/acoustic-pressure-3d.gif`

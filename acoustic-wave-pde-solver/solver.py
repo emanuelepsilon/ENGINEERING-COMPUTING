@@ -357,7 +357,7 @@ def simulate() -> None:
     (REPORTS_DIR / "simulation_summary.txt").write_text(summary, encoding="utf-8")
 
     print(summary)
-    print("Generated GIFs:")
+    print("Output GIFs:")
     for path in sorted(ASSETS_DIR.glob("*.gif")):
         print(f"- {path.name}: {path.stat().st_size / 1024:.1f} KB")
 
