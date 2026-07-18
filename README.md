@@ -4,6 +4,10 @@ Projects related to MATLAB, C, numerical computing, simulations, scientific prog
 
 ## Visual Samples
 
+| Acoustic wave PDE | Receiver traces | Energy diagnostics |
+| --- | --- | --- |
+| ![2D acoustic wave propagation](acoustic-wave-pde-solver/assets/acoustic-wavefield.gif) | ![Synthetic receiver traces](acoustic-wave-pde-solver/assets/acoustic-receivers.gif) | ![Discrete energy diagnostic](acoustic-wave-pde-solver/assets/acoustic-energy.gif) |
+
 | Coupled map dynamics | Neural cellular automaton | Vicsek model alignment |
 | --- | --- | --- |
 | ![Coupled logistic map phase portrait](assets/mks-phase-portrait.gif) | ![Excitable neural cellular automaton](assets/mks-neural-branching.gif) | ![Vicsek collective alignment model](assets/mks-vicsek-model.gif) |
@@ -11,6 +15,7 @@ Projects related to MATLAB, C, numerical computing, simulations, scientific prog
 ## Contents
 
 - `desktop-mks-projects` - selected computational/scientific Python projects from local coursework/practice material.
+- `acoustic-wave-pde-solver` - 2D acoustic wave equation solver with heterogeneous media, absorbing boundaries, receiver traces, and energy diagnostics.
 - `esp32-dht11-oled` - PlatformIO ESP32 embedded project.
 - `roadster-numerical-project` - numerical Python project with interpolation, route, and test scripts.
 - `usb-assembly` - small assembly experiment from USB material.

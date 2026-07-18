@@ -1,0 +1,9 @@
+2D acoustic wave equation simulation
+grid_points: 128 x 128
+time_steps: 560
+dx: 0.007874
+dt: 0.001509
+velocity_model: homogeneous background with fast circular inclusion and slow layer
+boundary_model: damped absorbing sponge layer
+source: Ricker wavelet
+receiver_count: 4
